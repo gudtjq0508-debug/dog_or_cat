@@ -27,6 +27,8 @@ body {
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     text-align: center;
+    position: relative;
+    overflow: visible;
 }
 
 header h1 {
@@ -49,32 +51,23 @@ header p {
 
 .decoration {
     position: absolute;
-    font-size: 3.5rem;
-    z-index: 1;
+    font-size: 2.5rem;
+    z-index: 5;
     pointer-events: none;
-    animation: float 3s ease-in-out infinite;
+    animation: float 4s ease-in-out infinite;
 }
 
-.dog-deco {
-    top: -20px;
-    left: -40px;
-    transform: rotate(-15deg);
-}
-
-.cat-deco {
-    bottom: -20px;
-    right: -40px;
-    transform: rotate(15deg);
-    animation-delay: 1.5s;
-}
+.dog-deco-1 { top: -40px; left: -20px; --rot: -15deg; }
+.cat-deco-1 { top: -40px; right: -20px; --rot: 15deg; animation-delay: 1s; }
+.dog-deco-2 { bottom: 60px; left: -50px; --rot: -20deg; animation-delay: 2s; font-size: 3rem; }
+.cat-deco-2 { bottom: 60px; right: -50px; --rot: 20deg; animation-delay: 3s; font-size: 3rem; }
+.paw-deco-1 { top: 40%; left: -60px; --rot: -30deg; animation-delay: 0.5s; opacity: 0.6; }
+.paw-deco-2 { top: 40%; right: -60px; --rot: 30deg; animation-delay: 2.5s; opacity: 0.6; }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0) rotate(var(--rot, -15deg)); }
-    50% { transform: translateY(-15px) rotate(var(--rot, -15deg)); }
+    0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+    50% { transform: translateY(-20px) rotate(calc(var(--rot, 0deg) + 10deg)); }
 }
-
-.dog-deco { --rot: -15deg; }
-.cat-deco { --rot: 15deg; }
 
 .upload-box {
     border: 2px dashed #ddd;
@@ -89,6 +82,9 @@ header p {
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    background: white;
+    position: relative;
+    z-index: 2;
 }
 
 .upload-box:hover {
@@ -117,6 +113,8 @@ header p {
     cursor: pointer;
     transition: background 0.3s;
     font-weight: bold;
+    position: relative;
+    z-index: 2;
 }
 
 .btn:hover {
