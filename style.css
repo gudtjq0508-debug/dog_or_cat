@@ -44,7 +44,37 @@ header p {
 
 .upload-container {
     margin-bottom: 30px;
+    position: relative;
 }
+
+.decoration {
+    position: absolute;
+    font-size: 3.5rem;
+    z-index: 1;
+    pointer-events: none;
+    animation: float 3s ease-in-out infinite;
+}
+
+.dog-deco {
+    top: -20px;
+    left: -40px;
+    transform: rotate(-15deg);
+}
+
+.cat-deco {
+    bottom: -20px;
+    right: -40px;
+    transform: rotate(15deg);
+    animation-delay: 1.5s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(var(--rot, -15deg)); }
+    50% { transform: translateY(-15px) rotate(var(--rot, -15deg)); }
+}
+
+.dog-deco { --rot: -15deg; }
+.cat-deco { --rot: 15deg; }
 
 .upload-box {
     border: 2px dashed #ddd;
