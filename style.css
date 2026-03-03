@@ -1,1 +1,168 @@
-/* Add styles here */
+:root {
+    --primary-color: #ff9a9e;
+    --secondary-color: #fad0c4;
+    --dog-color: #ffcc33;
+    --cat-color: #ff8888;
+    --bg-color: #f8f9fa;
+    --text-color: #333;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background: white;
+    width: 90%;
+    max-width: 500px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    background: linear-gradient(to right, #ff9a9e, #fad0c4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+header p {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.upload-container {
+    margin-bottom: 30px;
+}
+
+.upload-box {
+    border: 2px dashed #ddd;
+    border-radius: 15px;
+    padding: 40px 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.upload-box:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(255, 154, 158, 0.05);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+#upload-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+}
+
+.btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background-color: #f67280;
+}
+
+.btn.secondary {
+    background-color: #6c757d;
+    margin-top: 20px;
+}
+
+.loading {
+    margin: 30px 0;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.result-container {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.progress-container {
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.animal-label {
+    width: 80px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.progress {
+    flex-grow: 1;
+    height: 15px;
+    background-color: #eee;
+    border-radius: 10px;
+    margin: 0 15px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.progress-bar.dog { background-color: var(--dog-color); }
+.progress-bar.cat { background-color: var(--cat-color); }
+
+.result-message {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 20px;
+    color: #444;
+}
+
+footer {
+    margin-top: 40px;
+    font-size: 0.8rem;
+    color: #999;
+}
