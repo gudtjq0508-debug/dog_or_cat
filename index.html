@@ -3,64 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 동물상 테스트 - 강아지? 고양이?</title>
+    <title>AI 동물상 테스트 Pro - 나를 닮은 동물은?</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Montserrat:wght@600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
         <header>
-            <h1>AI 동물상 테스트</h1>
-            <p>나의 얼굴은 어떤 동물과 닮았을까?</p>
+            <div class="logo">🐾 AI FACE</div>
+            <h1>동물상 테스트 <span class="badge">PRO</span></h1>
+            <p>인공지능이 당신의 얼굴 특징을 정밀 분석합니다</p>
         </header>
         
         <main>
-            <div class="decoration dog-deco-1">🐶</div>
-            <div class="decoration cat-deco-1">🐱</div>
-            <div class="decoration dog-deco-2">🐕</div>
-            <div class="decoration cat-deco-2">🐈</div>
-            <div class="decoration paw-deco-1">🐾</div>
-            <div class="decoration paw-deco-2">🐾</div>
-            
-            <div class="upload-container" id="upload-area">
-                <div class="upload-box" id="image-preview-container">
-                    <img id="upload-image" src="" alt="업로드 이미지" style="display: none;">
-                    <div id="upload-placeholder">
-                        <span class="upload-icon">📸</span>
-                        <p>사진을 업로드하거나 여기로 끌어다 놓으세요</p>
+            <!-- Decoration Icons -->
+            <div class="deco-wrap">
+                <span class="float-icon">🐶</span>
+                <span class="float-icon">🐱</span>
+                <span class="float-icon">🐕</span>
+                <span class="float-icon">🐈</span>
+                <span class="float-icon">🐾</span>
+            </div>
+
+            <section id="upload-section" class="card">
+                <div class="upload-area" id="upload-area">
+                    <div id="image-preview-container">
+                        <img id="upload-image" src="" alt="업로드 이미지" style="display: none;">
+                        <div id="upload-placeholder">
+                            <div class="icon-circle">📸</div>
+                            <h3>사진을 업로드하세요</h3>
+                            <p>정면 사진일수록 정확도가 올라갑니다</p>
+                        </div>
                     </div>
                 </div>
                 <input type="file" id="file-input" accept="image/*" style="display: none;">
-                <button id="upload-btn" class="btn">사진 선택하기</button>
-            </div>
+                <button id="upload-btn" class="main-btn">분석 시작하기</button>
+            </section>
 
-            <div id="loading" class="loading" style="display: none;">
-                <div class="spinner"></div>
-                <p>AI가 얼굴을 분석 중입니다...</p>
-            </div>
+            <section id="loading-section" class="card" style="display: none;">
+                <div class="scanner"></div>
+                <div class="loading-text">
+                    <h2 id="loading-msg">얼굴 윤곽 스캔 중...</h2>
+                    <div class="progress-line"></div>
+                </div>
+            </section>
 
-            <div id="result-container" class="result-container" style="display: none;">
-                <h2 id="result-title">결과</h2>
-                <div class="progress-container">
-                    <div class="animal-label">🐶 강아지상</div>
-                    <div class="progress">
-                        <div id="dog-bar" class="progress-bar dog" style="width: 0%"></div>
-                    </div>
-                    <span id="dog-percent">0%</span>
+            <section id="result-section" class="card" style="display: none;">
+                <div class="result-header">
+                    <h2 id="main-animal-title">당신은 강아지상!</h2>
+                    <p id="sub-animal-desc">따뜻한 눈매를 가진 매력적인 얼굴</p>
                 </div>
-                <div class="progress-container">
-                    <div class="animal-label">🐱 고양이상</div>
-                    <div class="progress">
-                        <div id="cat-bar" class="progress-bar cat" style="width: 0%"></div>
+
+                <div class="analysis-grid">
+                    <div class="animal-score dog">
+                        <div class="score-info">
+                            <span class="label">강아지</span>
+                            <span id="dog-score" class="percent">0%</span>
+                        </div>
+                        <div class="bar-wrap"><div id="dog-bar" class="fill"></div></div>
                     </div>
-                    <span id="cat-percent">0%</span>
+                    <div class="animal-score cat">
+                        <div class="score-info">
+                            <span class="label">고양이</span>
+                            <span id="cat-score" class="percent">0%</span>
+                        </div>
+                        <div class="bar-wrap"><div id="cat-bar" class="fill"></div></div>
+                    </div>
                 </div>
-                <p id="result-message" class="result-message"></p>
-                <button id="retry-btn" class="btn secondary">다시 시도하기</button>
-            </div>
+
+                <div class="trait-card">
+                    <h3>💡 AI 분석 레포트</h3>
+                    <ul id="trait-list">
+                        <!-- JS에서 동적으로 삽입 -->
+                    </ul>
+                </div>
+
+                <button id="retry-btn" class="sub-btn">다른 사진으로 테스트</button>
+            </section>
         </main>
         
         <footer>
+            <p>AI Animal Face Analysis Pro v2.0</p>
         </footer>
     </div>
 

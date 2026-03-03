@@ -5,126 +5,152 @@ let model, maxPredictions;
 
 // Load the image model
 async function init() {
-    const modelURL = URL + "model.json";
-    const metadataURL = URL + "metadata.json";
-
     try {
-        model = await tmImage.load(modelURL, metadataURL);
+        model = await tmImage.load(URL + "model.json", URL + "metadata.json");
         maxPredictions = model.getTotalClasses();
-        console.log("Model loaded successfully");
-    } catch (error) {
-        console.error("Error loading model:", error);
+        console.log("AI Model Ready");
+    } catch (e) {
+        console.error("Model load failed", e);
     }
 }
-
-// Initialize the model
 init();
 
 // DOM Elements
-const fileInput = document.getElementById('file-input');
-const uploadBtn = document.getElementById('upload-btn');
-const uploadArea = document.getElementById('upload-area');
-const imagePreview = document.getElementById('upload-image');
-const uploadPlaceholder = document.getElementById('upload-placeholder');
-const loadingArea = document.getElementById('loading');
-const resultContainer = document.getElementById('result-container');
-const retryBtn = document.getElementById('retry-btn');
+const elements = {
+    fileInput: document.getElementById('file-input'),
+    uploadBtn: document.getElementById('upload-btn'),
+    uploadArea: document.getElementById('upload-area'),
+    imagePreview: document.getElementById('upload-image'),
+    uploadPlaceholder: document.getElementById('upload-placeholder'),
+    
+    // Sections
+    uploadSection: document.getElementById('upload-section'),
+    loadingSection: document.getElementById('loading-section'),
+    resultSection: document.getElementById('result-section'),
+    
+    // Results
+    dogScore: document.getElementById('dog-score'),
+    catScore: document.getElementById('cat-score'),
+    dogBar: document.getElementById('dog-bar'),
+    catBar: document.getElementById('cat-bar'),
+    mainTitle: document.getElementById('main-animal-title'),
+    subDesc: document.getElementById('sub-animal-desc'),
+    traitList: document.getElementById('trait-list'),
+    retryBtn: document.getElementById('retry-btn'),
+    loadingMsg: document.getElementById('loading-msg')
+};
 
-// Progress bars and percents
-const dogBar = document.getElementById('dog-bar');
-const catBar = document.getElementById('cat-bar');
-const dogPercent = document.getElementById('dog-percent');
-const catPercent = document.getElementById('cat-percent');
-const resultMessage = document.getElementById('result-message');
+// Analysis Data
+const analysisResults = {
+    dog: {
+        title: "친근하고 귀여운 '강아지상'",
+        desc: "보는 사람을 무장해제 시키는 따뜻한 인상",
+        traits: [
+            "눈매가 부드럽고 선한 느낌을 줍니다.",
+            "웃을 때 입매가 시원하여 호감도가 매우 높습니다.",
+            "상대방에게 편안함과 신뢰를 주는 분위기입니다.",
+            "다정다감하고 사교적인 성격으로 보일 확률이 높습니다."
+        ]
+    },
+    cat: {
+        title: "도도하고 세련된 '고양이상'",
+        desc: "신비롭고 날카로운 지적 매력이 돋보이는 얼굴",
+        traits: [
+            "눈꼬리가 살짝 올라가 있어 세련된 인상을 줍니다.",
+            "자기주관이 뚜렷하고 도도한 분위기를 풍깁니다.",
+            "이목구비가 뚜렷하여 도시적이고 시크한 느낌입니다.",
+            "처음에는 차가워 보일 수 있으나 알수록 깊은 매력이 있습니다."
+        ]
+    }
+};
 
 // Event Listeners
-uploadBtn.addEventListener('click', () => fileInput.click());
+elements.uploadBtn.addEventListener('click', () => elements.fileInput.click());
 
-fileInput.addEventListener('change', (e) => {
+elements.fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
-    if (file) {
-        handleImage(file);
-    }
+    if (file) handleFile(file);
 });
 
-// Drag and drop handling
-uploadArea.addEventListener('dragover', (e) => {
+elements.uploadArea.addEventListener('dragover', (e) => {
     e.preventDefault();
-    uploadArea.style.borderColor = 'var(--primary-color)';
+    elements.uploadArea.style.borderColor = 'var(--primary)';
 });
 
-uploadArea.addEventListener('dragleave', () => {
-    uploadArea.style.borderColor = '#ddd';
+elements.uploadArea.addEventListener('dragleave', () => {
+    elements.uploadArea.style.borderColor = '#d1d5db';
 });
 
-uploadArea.addEventListener('drop', (e) => {
+elements.uploadArea.addEventListener('drop', (e) => {
     e.preventDefault();
-    uploadArea.style.borderColor = '#ddd';
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-        handleImage(file);
-    }
+    if (file && file.type.startsWith('image/')) handleFile(file);
 });
 
-retryBtn.addEventListener('click', () => {
-    location.reload();
+elements.retryBtn.addEventListener('click', () => {
+    elements.resultSection.style.display = 'none';
+    elements.uploadSection.style.display = 'block';
+    elements.imagePreview.style.display = 'none';
+    elements.uploadPlaceholder.style.display = 'block';
 });
 
-async function handleImage(file) {
+function handleFile(file) {
     const reader = new FileReader();
-    reader.onload = async (e) => {
-        imagePreview.src = e.target.result;
-        imagePreview.style.display = 'block';
-        uploadPlaceholder.style.display = 'none';
+    reader.onload = (e) => {
+        elements.imagePreview.src = e.target.result;
+        elements.imagePreview.style.display = 'block';
+        elements.uploadPlaceholder.style.display = 'none';
         
-        // Hide upload container and show loading
-        uploadArea.style.display = 'none';
-        loadingArea.style.display = 'block';
-        
-        // Give some time for UI to update
-        setTimeout(async () => {
-            await predict();
-        }, 500);
+        startAnalysis();
     };
     reader.readAsDataURL(file);
 }
 
-async function predict() {
-    if (!model) {
-        alert("모델이 아직 로드되지 않았습니다. 잠시만 기다려주세요.");
-        return;
-    }
-
-    const prediction = await model.predict(imagePreview);
+async function startAnalysis() {
+    elements.uploadSection.style.display = 'none';
+    elements.loadingSection.style.display = 'block';
     
-    // Sort and find dog/cat
-    let dogScore = 0;
-    let catScore = 0;
-
-    for (let i = 0; i < maxPredictions; i++) {
-        const className = prediction[i].className;
-        const probability = prediction[i].probability.toFixed(2);
-        
-        if (className === "dog") dogScore = probability * 100;
-        if (className === "cat") catScore = probability * 100;
+    // Simulate steps for better UX
+    const steps = ["얼굴 윤곽 스캔 중...", "특징점 추출 중...", "AI 알고리즘 분석 중..."];
+    for (let step of steps) {
+        elements.loadingMsg.innerText = step;
+        await new Promise(r => setTimeout(r, 800));
     }
+
+    predict();
+}
+
+async function predict() {
+    if (!model) return alert("모델 로딩 중입니다. 잠시만 기다려주세요.");
+    
+    const prediction = await model.predict(elements.imagePreview);
+    
+    let dog = 0, cat = 0;
+    prediction.forEach(p => {
+        if (p.className === 'dog') dog = (p.probability * 100);
+        if (p.className === 'cat') cat = (p.probability * 100);
+    });
 
     // Update UI
-    loadingArea.style.display = 'none';
-    resultContainer.style.display = 'block';
+    elements.loadingSection.style.display = 'none';
+    elements.resultSection.style.display = 'block';
 
-    dogBar.style.width = dogScore + "%";
-    dogPercent.innerText = Math.round(dogScore) + "%";
+    // Scores
+    setTimeout(() => {
+        elements.dogBar.style.width = dog + "%";
+        elements.catBar.style.width = cat + "%";
+        elements.dogScore.innerText = Math.round(dog) + "%";
+        elements.catScore.innerText = Math.round(cat) + "%";
+    }, 100);
+
+    // Final Result
+    const finalType = dog > cat ? 'dog' : 'cat';
+    const result = analysisResults[finalType];
     
-    catBar.style.width = catScore + "%";
-    catPercent.innerText = Math.round(catScore) + "%";
-
-    // Result message
-    if (dogScore > catScore) {
-        resultMessage.innerText = `당신은 귀여운 "강아지상"입니다! 🐶\n따뜻하고 친근한 인상을 주시네요.`;
-    } else if (catScore > dogScore) {
-        resultMessage.innerText = `당신은 매력적인 "고양이상"입니다! 🐱\n도도하고 세련된 인상을 주시네요.`;
-    } else {
-        resultMessage.innerText = `당신은 오묘한 매력을 가진 얼굴이시군요! ✨`;
-    }
+    elements.mainTitle.innerText = `당신은 ${result.title}!`;
+    elements.subDesc.innerText = result.desc;
+    
+    elements.traitList.innerHTML = result.traits
+        .map(t => `<li>${t}</li>`)
+        .join('');
 }
