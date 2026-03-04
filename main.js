@@ -1,5 +1,5 @@
 // Teachable Machine model URL
-const URL = "https://teachablemachine.withgoogle.com/models/_R1euslm8/";
+const URL = "https://teachablemachine.withgoogle.com/models/r2cDICYbm/";
 
 let model, maxPredictions;
 let labels = { dog: [], cat: [] };
