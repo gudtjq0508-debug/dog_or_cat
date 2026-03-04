@@ -1,21 +1,18 @@
-// Teachable Machine model URL (JoCoding's model)
-const URL = "https://teachablemachine.withgoogle.com/models/hS948_r8L/";
+// Stable Teachable Machine model URL (Standard Animal Face Model)
+const URL = "https://teachablemachine.withgoogle.com/models/r2cDICYbm/";
 
 let model, maxPredictions;
 
 // Load the image model
 async function init() {
     try {
-        // Load the model and metadata
+        console.log("Loading AI Model...");
         model = await tmImage.load(URL + "model.json", URL + "metadata.json");
         maxPredictions = model.getTotalClasses();
-        console.log("AI Model Ready. Classes:", maxPredictions);
+        console.log("AI Model Loaded Successfully. Classes:", maxPredictions);
     } catch (e) {
-        console.error("Model load failed", e);
-        // Retry once after a short delay if it fails (network hiccup)
-        setTimeout(() => {
-            init();
-        }, 2000);
+        console.error("Model load failed:", e);
+        // Do not alert immediately, let it retry or fail on use
     }
 }
 init();
@@ -132,68 +129,79 @@ async function startAnalysis() {
     ];
     for (let step of steps) {
         elements.loadingMsg.innerText = step;
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise(r => setTimeout(r, 600));
     }
 
     predict();
 }
 
 async function predict() {
+    // Check if model is loaded, if not, try to reload once
     if (!model) {
-        alert("모델 로딩 중입니다. 잠시만 기다려주세요.");
-        // If model still not loaded, try to init again
-        init();
+        try {
+            await init();
+        } catch (e) {
+            console.error("Predict failed due to model load error", e);
+        }
+    }
+
+    if (!model) {
+        alert("인공지능 모델을 불러오는 데 실패했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.");
         elements.loadingSection.style.display = 'none';
         elements.uploadSection.style.display = 'block';
         return;
     }
     
-    const prediction = await model.predict(elements.imagePreview);
-    
-    let dogRaw = 0;
-    let catRaw = 0;
+    try {
+        const prediction = await model.predict(elements.imagePreview);
+        
+        let dogRaw = 0;
+        let catRaw = 0;
 
-    prediction.forEach(p => {
-        const className = p.className.toLowerCase();
-        // JoCoding model uses Korean labels mostly
-        if (className.includes('강아지') || className.includes('dog')) {
-            dogRaw = p.probability;
-        } else if (className.includes('고양이') || className.includes('cat')) {
-            catRaw = p.probability;
+        prediction.forEach(p => {
+            const className = p.className.toLowerCase();
+            if (className.includes('dog') || className.includes('강아지')) {
+                dogRaw += p.probability;
+            } else if (className.includes('cat') || className.includes('고양이')) {
+                catRaw += p.probability;
+            }
+        });
+
+        // Normalize between dog and cat
+        const total = dogRaw + catRaw;
+        let dogProb = total > 0 ? (dogRaw / total) * 100 : 50;
+        let catProb = total > 0 ? (catRaw / total) * 100 : 50;
+
+        // UI Update
+        elements.loadingSection.style.display = 'none';
+        elements.resultSection.style.display = 'block';
+
+        elements.dogBar.style.width = "0%";
+        elements.catBar.style.width = "0%";
+        
+        setTimeout(() => {
+            elements.dogBar.style.width = dogProb + "%";
+            elements.catBar.style.width = catProb + "%";
+            elements.dogScore.innerText = Math.round(dogProb) + "%";
+            elements.catScore.innerText = Math.round(catProb) + "%";
+        }, 200);
+
+        let finalType = 'mix';
+        if (Math.abs(dogProb - catProb) > 15) {
+            finalType = dogProb > catProb ? 'dog' : 'cat';
         }
-    });
 
-    // Normalize probabilities between dog and cat
-    const sum = dogRaw + catRaw;
-    let dogProb = sum > 0 ? (dogRaw / sum) * 100 : 50;
-    let catProb = sum > 0 ? (catRaw / sum) * 100 : 50;
-
-    // UI Update
-    elements.loadingSection.style.display = 'none';
-    elements.resultSection.style.display = 'block';
-
-    // Reset and Animate Bars
-    elements.dogBar.style.width = "0%";
-    elements.catBar.style.width = "0%";
-    
-    setTimeout(() => {
-        elements.dogBar.style.width = dogProb + "%";
-        elements.catBar.style.width = catProb + "%";
-        elements.dogScore.innerText = Math.round(dogProb) + "%";
-        elements.catScore.innerText = Math.round(catProb) + "%";
-    }, 200);
-
-    // Final Result Logic
-    let finalType = 'mix';
-    if (Math.abs(dogProb - catProb) > 15) {
-        finalType = dogProb > catProb ? 'dog' : 'cat';
+        const result = analysisResults[finalType];
+        elements.mainTitle.innerText = result.title;
+        elements.subDesc.innerText = result.desc;
+        elements.traitList.innerHTML = result.traits.map(t => `<li>${t}</li>`).join('') + 
+                                      `<li class="styling-tip"><strong>👗 스타일링 팁:</strong> ${result.styling}</li>`;
+    } catch (e) {
+        console.error("Prediction error:", e);
+        alert("분석 중 오류가 발생했습니다. 다른 사진으로 시도해 보세요.");
+        elements.loadingSection.style.display = 'none';
+        elements.uploadSection.style.display = 'block';
     }
-
-    const result = analysisResults[finalType];
-    elements.mainTitle.innerText = result.title;
-    elements.subDesc.innerText = result.desc;
-    elements.traitList.innerHTML = result.traits.map(t => `<li>${t}</li>`).join('') + 
-                                  `<li class="styling-tip"><strong>👗 스타일링 팁:</strong> ${result.styling}</li>`;
 }
 
 function copyUrl() {
