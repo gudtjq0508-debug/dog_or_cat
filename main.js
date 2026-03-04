@@ -1,4 +1,4 @@
-// JoCoding's Animal Face Model (High accuracy, includes Rabbit, Fox, etc. but we filter for Dog/Cat)
+// Teachable Machine model URL (JoCoding's model)
 const URL = "https://teachablemachine.withgoogle.com/models/hS948_r8L/";
 
 let model, maxPredictions;
@@ -6,17 +6,21 @@ let model, maxPredictions;
 // Load the image model
 async function init() {
     try {
+        // Load the model and metadata
         model = await tmImage.load(URL + "model.json", URL + "metadata.json");
         maxPredictions = model.getTotalClasses();
         console.log("AI Model Ready. Classes:", maxPredictions);
     } catch (e) {
         console.error("Model load failed", e);
-        alert("모델 로딩에 실패했습니다. 페이지를 새로고침 해주세요.");
+        // Retry once after a short delay if it fails (network hiccup)
+        setTimeout(() => {
+            init();
+        }, 2000);
     }
 }
 init();
 
-// Analysis Data - More detailed for "Completeness"
+// Analysis Data
 const analysisResults = {
     dog: {
         title: "친근함의 대명사 '강아지상'",
@@ -135,27 +139,34 @@ async function startAnalysis() {
 }
 
 async function predict() {
-    if (!model) return alert("모델 로딩 중입니다. 잠시만 기다려주세요.");
+    if (!model) {
+        alert("모델 로딩 중입니다. 잠시만 기다려주세요.");
+        // If model still not loaded, try to init again
+        init();
+        elements.loadingSection.style.display = 'none';
+        elements.uploadSection.style.display = 'block';
+        return;
+    }
     
     const prediction = await model.predict(elements.imagePreview);
     
-    // 이 모델에는 여러 동물이 있지만 우리는 강아지와 고양이에 집중
-    // 하지만 다른 동물의 점수도 고려하여 상대적인 비율로 계산
     let dogRaw = 0;
     let catRaw = 0;
-    let othersRaw = 0;
 
     prediction.forEach(p => {
-        const name = p.className.toLowerCase();
-        if (name === 'dog' || name === '강아지') dogRaw = p.probability;
-        else if (name === 'cat' || name === '고양이') catRaw = p.probability;
-        else othersRaw += p.probability;
+        const className = p.className.toLowerCase();
+        // JoCoding model uses Korean labels mostly
+        if (className.includes('강아지') || className.includes('dog')) {
+            dogRaw = p.probability;
+        } else if (className.includes('고양이') || className.includes('cat')) {
+            catRaw = p.probability;
+        }
     });
 
-    // 강아지와 고양이 중 어느 쪽이 더 강한지 비율 계산
-    const total = dogRaw + catRaw + (othersRaw * 0.2); // 기타 점수는 일부만 반영
-    let dogProb = (dogRaw / (dogRaw + catRaw)) * 100;
-    let catProb = (catRaw / (dogRaw + catRaw)) * 100;
+    // Normalize probabilities between dog and cat
+    const sum = dogRaw + catRaw;
+    let dogProb = sum > 0 ? (dogRaw / sum) * 100 : 50;
+    let catProb = sum > 0 ? (catRaw / sum) * 100 : 50;
 
     // UI Update
     elements.loadingSection.style.display = 'none';
