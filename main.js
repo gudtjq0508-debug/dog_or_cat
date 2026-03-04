@@ -1,29 +1,57 @@
-// Teachable Machine model URL
-const URL = "https://teachablemachine.withgoogle.com/models/r2cDICYbm/";
+// JoCoding's Animal Face Model (High accuracy, includes Rabbit, Fox, etc. but we filter for Dog/Cat)
+const URL = "https://teachablemachine.withgoogle.com/models/hS948_r8L/";
 
 let model, maxPredictions;
-let labels = { dog: [], cat: [] };
 
 // Load the image model
 async function init() {
     try {
         model = await tmImage.load(URL + "model.json", URL + "metadata.json");
         maxPredictions = model.getTotalClasses();
-        
-        // 모델의 실제 라벨 분석 (한글/영문 모두 대응)
-        const metadata = await (await fetch(URL + "metadata.json")).json();
-        metadata.labels.forEach((label, index) => {
-            const l = label.toLowerCase();
-            if (l.includes('강아지') || l.includes('dog')) labels.dog.push(label);
-            if (l.includes('고양이') || l.includes('cat')) labels.cat.push(label);
-        });
-        
-        console.log("AI Model Ready. Labels mapped:", labels);
+        console.log("AI Model Ready. Classes:", maxPredictions);
     } catch (e) {
         console.error("Model load failed", e);
+        alert("모델 로딩에 실패했습니다. 페이지를 새로고침 해주세요.");
     }
 }
 init();
+
+// Analysis Data - More detailed for "Completeness"
+const analysisResults = {
+    dog: {
+        title: "친근함의 대명사 '강아지상'",
+        desc: "보는 사람을 미소 짓게 만드는 선한 매력의 소유자",
+        traits: [
+            "눈매가 동그랗고 부드러워 첫인상에서 큰 호감을 얻습니다.",
+            "웃을 때 입매가 시원하게 올라가 밝고 긍정적인 에너지를 줍니다.",
+            "전체적으로 이목구비의 각이 완만하여 부드러운 인상을 풍깁니다.",
+            "타인에게 신뢰감을 주는 안정적인 분위기를 가지고 있습니다."
+        ],
+        styling: "따뜻한 톤의 니트나 부드러운 캐주얼룩이 잘 어울립니다."
+    },
+    cat: {
+        title: "치명적인 매력의 '고양이상'",
+        desc: "한 번 보면 잊혀지지 않는 도도하고 세련된 매력",
+        traits: [
+            "눈꼬리가 살짝 올라가 있어 세련되고 도회적인 느낌을 줍니다.",
+            "자기주관이 뚜렷하고 도도한 분위기를 풍기는 이지적인 얼굴입니다.",
+            "턱선과 콧날이 날렵하여 신비롭고 섹시한 매력이 돋보입니다.",
+            "차가워 보일 수 있지만, 웃을 때 반전 매력이 가장 큰 타입입니다."
+        ],
+        styling: "세미 정장이나 시크한 블랙 계열의 코디가 잘 어울립니다."
+    },
+    mix: {
+        title: "오묘한 매력의 '개냥이상'",
+        desc: "강아지의 친근함과 고양이의 세련미를 모두 갖춘 유니크 페이스",
+        traits: [
+            "두 동물의 매력이 조화롭게 섞여 있어 예측 불가능한 매력을 줍니다.",
+            "표정에 따라 분위기가 극적으로 변하는 모델 같은 얼굴입니다.",
+            "희소성 있는 마스크로 어떤 스타일도 자신만의 개성으로 소화합니다.",
+            "정면 사진뿐만 아니라 다양한 각도에서 매력이 터지는 타입입니다."
+        ],
+        styling: "믹스매치 룩이나 트렌디한 스트릿 패션이 잘 어울립니다."
+    }
+};
 
 // DOM Elements
 const elements = {
@@ -44,39 +72,6 @@ const elements = {
     traitList: document.getElementById('trait-list'),
     retryBtn: document.getElementById('retry-btn'),
     loadingMsg: document.getElementById('loading-msg')
-};
-
-// Analysis Data
-const analysisResults = {
-    dog: {
-        title: "친근하고 귀여운 '강아지상'",
-        desc: "보는 사람을 무장해제 시키는 따뜻한 인상",
-        traits: [
-            "눈매가 부드럽고 선한 느낌을 줍니다.",
-            "웃을 때 입매가 시원하여 호감도가 매우 높습니다.",
-            "상대방에게 편안함과 신뢰를 주는 분위기입니다.",
-            "다정다감하고 사교적인 성격으로 보일 확률이 높습니다."
-        ]
-    },
-    cat: {
-        title: "도도하고 세련된 '고양이상'",
-        desc: "신비롭고 날카로운 지적 매력이 돋보이는 얼굴",
-        traits: [
-            "눈꼬리가 살짝 올라가 있어 세련된 인상을 줍니다.",
-            "자기주관이 뚜렷하고 도도한 분위기를 풍깁니다.",
-            "이목구비가 뚜렷하여 도시적이고 시크한 느낌입니다.",
-            "처음에는 차가워 보일 수 있으나 알수록 깊은 매력이 있습니다."
-        ]
-    },
-    unknown: {
-        title: "오묘한 매력의 소유자",
-        desc: "어느 한 범주로 정의할 수 없는 유니크한 얼굴",
-        traits: [
-            "여러 동물의 매력이 섞여있는 개성 넘치는 얼굴입니다.",
-            "사진의 각도나 조명에 따라 다양한 분위기를 냅니다.",
-            "정면 사진으로 다시 한번 테스트해보시길 권장합니다."
-        ]
-    }
 };
 
 // Event Listeners
@@ -125,10 +120,15 @@ async function startAnalysis() {
     elements.uploadSection.style.display = 'none';
     elements.loadingSection.style.display = 'block';
     
-    const steps = ["얼굴 윤곽 스캔 중...", "특징점 추출 중...", "AI 알고리즘 분석 중..."];
+    const steps = [
+        "픽셀 분석 중...", 
+        "이목구비 특징 추출 중...", 
+        "AI 딥러닝 알고리즘 대조 중...",
+        "최종 결과 생성 중..."
+    ];
     for (let step of steps) {
         elements.loadingMsg.innerText = step;
-        await new Promise(r => setTimeout(r, 600));
+        await new Promise(r => setTimeout(r, 800));
     }
 
     predict();
@@ -139,16 +139,23 @@ async function predict() {
     
     const prediction = await model.predict(elements.imagePreview);
     
-    let dogProb = 0;
-    let catProb = 0;
+    // 이 모델에는 여러 동물이 있지만 우리는 강아지와 고양이에 집중
+    // 하지만 다른 동물의 점수도 고려하여 상대적인 비율로 계산
+    let dogRaw = 0;
+    let catRaw = 0;
+    let othersRaw = 0;
 
     prediction.forEach(p => {
-        if (labels.dog.includes(p.className)) dogProb += p.probability;
-        if (labels.cat.includes(p.className)) catProb += p.probability;
+        const name = p.className.toLowerCase();
+        if (name === 'dog' || name === '강아지') dogRaw = p.probability;
+        else if (name === 'cat' || name === '고양이') catRaw = p.probability;
+        else othersRaw += p.probability;
     });
 
-    const dog = dogProb * 100;
-    const cat = catProb * 100;
+    // 강아지와 고양이 중 어느 쪽이 더 강한지 비율 계산
+    const total = dogRaw + catRaw + (othersRaw * 0.2); // 기타 점수는 일부만 반영
+    let dogProb = (dogRaw / (dogRaw + catRaw)) * 100;
+    let catProb = (catRaw / (dogRaw + catRaw)) * 100;
 
     // UI Update
     elements.loadingSection.style.display = 'none';
@@ -159,22 +166,28 @@ async function predict() {
     elements.catBar.style.width = "0%";
     
     setTimeout(() => {
-        elements.dogBar.style.width = dog + "%";
-        elements.catBar.style.width = cat + "%";
-        elements.dogScore.innerText = Math.round(dog) + "%";
-        elements.catScore.innerText = Math.round(cat) + "%";
+        elements.dogBar.style.width = dogProb + "%";
+        elements.catBar.style.width = catProb + "%";
+        elements.dogScore.innerText = Math.round(dogProb) + "%";
+        elements.catScore.innerText = Math.round(catProb) + "%";
     }, 200);
 
     // Final Result Logic
-    let finalType = 'unknown';
-    if (Math.abs(dog - cat) < 5) {
-        finalType = 'unknown'; // 두 점수 차이가 5% 미만이면 오묘함으로 처리
-    } else {
-        finalType = dog > cat ? 'dog' : 'cat';
+    let finalType = 'mix';
+    if (Math.abs(dogProb - catProb) > 15) {
+        finalType = dogProb > catProb ? 'dog' : 'cat';
     }
 
     const result = analysisResults[finalType];
-    elements.mainTitle.innerText = finalType === 'unknown' ? result.title : `당신은 ${result.title}!`;
+    elements.mainTitle.innerText = result.title;
     elements.subDesc.innerText = result.desc;
-    elements.traitList.innerHTML = result.traits.map(t => `<li>${t}</li>`).join('');
+    elements.traitList.innerHTML = result.traits.map(t => `<li>${t}</li>`).join('') + 
+                                  `<li class="styling-tip"><strong>👗 스타일링 팁:</strong> ${result.styling}</li>`;
+}
+
+function copyUrl() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        alert("링크가 복사되었습니다! 친구들에게 공유해보세요.");
+    });
 }

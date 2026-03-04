@@ -198,15 +198,55 @@ header p {
     margin-top: 15px;
 }
 
-/* Loading Section */
-.scanner {
+/* Hero Section */
+.hero-text {
+    margin-bottom: 30px;
+    padding: 0 10px;
+}
+
+.hero-text .description {
+    font-size: 1rem;
+    color: #4b5563;
+    line-height: 1.6;
+    word-break: keep-all;
+}
+
+/* Upload Section Enhancement */
+.privacy-note {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 15px;
+}
+
+/* Loading Section Enhancement */
+.scanner-container {
     width: 100%;
     height: 200px;
-    background: linear-gradient(to bottom, transparent, var(--primary-light), transparent);
+    background: #f9fafb;
+    border-radius: 16px;
     position: relative;
     overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.scanner {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0) 0%, rgba(99, 102, 241, 0.2) 50%, rgba(99, 102, 241, 0) 100%);
+    position: absolute;
+    top: 0;
+    left: 0;
     animation: scan 2s infinite ease-in-out;
-    opacity: 0.3;
+}
+
+.scanning-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(0deg, transparent 24%, rgba(99, 102, 241, 0.05) 25%, rgba(99, 102, 241, 0.05) 26%, transparent 27%, transparent 74%, rgba(99, 102, 241, 0.05) 75%, rgba(99, 102, 241, 0.05) 76%, transparent 77%, transparent);
+    background-size: 50px 50px;
 }
 
 @keyframes scan {
@@ -214,77 +254,90 @@ header p {
     100% { transform: translateY(100%); }
 }
 
-.progress-line {
-    width: 100%;
-    height: 4px;
-    background: #e5e7eb;
-    border-radius: 2px;
-    margin-top: 20px;
-    position: relative;
-    overflow: hidden;
+/* Result Section Enhancement */
+.result-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #eef2ff;
+    color: var(--primary);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 10px;
 }
 
-.progress-line::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 30%;
-    background: var(--primary);
-    animation: load 1.5s infinite linear;
+.styling-tip {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #e5e7eb;
+    color: #1f2937 !important;
 }
 
-@keyframes load {
-    0% { left: -30%; }
-    100% { left: 100%; }
+.styling-tip::before {
+    content: none !important;
 }
 
-/* Result Section */
-.result-header { margin-bottom: 25px; }
-.result-header h2 { font-size: 1.8rem; margin-bottom: 5px; }
-.result-header p { color: #6b7280; font-size: 0.9rem; }
+.share-section {
+    margin: 25px 0;
+    padding-top: 20px;
+    border-top: 1px solid #f3f4f6;
+}
 
-.analysis-grid {
+.share-section h4 {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 15px;
+}
+
+.share-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.share-icon {
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.share-icon:hover {
+    background: #f9fafb;
+}
+
+/* Info Section */
+.info-section {
     display: grid;
     gap: 15px;
-    margin-bottom: 25px;
-}
-
-.animal-score { text-align: left; }
-.score-info { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500; }
-.bar-wrap { width: 100%; height: 10px; background: #e5e7eb; border-radius: 5px; overflow: hidden; }
-.fill { height: 100%; width: 0; transition: width 1s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-
-.dog .fill { background: var(--dog-color); }
-.cat .fill { background: var(--cat-color); }
-
-.trait-card {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
+    margin-top: 20px;
     text-align: left;
 }
 
-.trait-card h3 { font-size: 0.95rem; margin-bottom: 12px; color: #4b5563; }
-.trait-card ul { list-style: none; }
-.trait-card li { 
-    font-size: 0.9rem; 
-    margin-bottom: 8px; 
-    padding-left: 20px; 
-    position: relative; 
-    line-height: 1.4;
+.info-card {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
-.trait-card li::before {
-    content: '•';
-    position: absolute;
-    left: 0;
-    color: var(--primary);
-    font-weight: bold;
+
+.info-card h3 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #374151;
+}
+
+.info-card p {
+    font-size: 0.85rem;
+    color: #6b7280;
+    line-height: 1.5;
+    word-break: keep-all;
 }
 
 footer {
-    margin-top: 30px;
-    font-size: 0.8rem;
-    color: #9ca3af;
+    margin-top: 40px;
+    padding-bottom: 40px;
 }
